@@ -5,7 +5,7 @@ import wof.entities.WallEntry;
 
 import java.util.Set;
 
-public interface WallEntryRepository extends CrudRepository<WallEntry, Long> {
+public interface WallEntryRepository extends CrudRepository<WallEntry, Integer> {
 
     @Override
     Set<WallEntry> findAll();

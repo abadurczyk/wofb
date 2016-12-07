@@ -27,13 +27,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = Application.class)
-public class MainControllerTest {
+public class WallControllerTest {
 
 
     @Autowired
     private WebApplicationContext wac;
     @Autowired
     private WallEntryService wallEntryService;
+
+    private final String headline = "headline";
+    private final String description = "description";
+    private final String path = "/v1/";
 
     private MockMvc mockMvc;
 
@@ -50,21 +54,33 @@ public class MainControllerTest {
 
     @Test
     public void addEntry() throws Exception {
-        String headline = "headline";
-        String description = "description";
-        WallEntry expectedWallEntry = new WallEntry();
-        expectedWallEntry.setDescription(description);
-        expectedWallEntry.setHeadline(headline);
-        String uri = String.format("/v1/headline/%s/description/%s", headline, description);
+
+        WallEntry expectedWallEntry = new WallEntry(headline, description);
+
         when(wallEntryService.add(headline, description)).thenReturn(expectedWallEntry);
 
-        MvcResult mvcResult = mockMvc.perform(post(uri)
+        String jsonString = objectMapper.writeValueAsString(expectedWallEntry);
+
+        MvcResult mvcResult = mockMvc.perform(post(path)
+                .content(jsonString)
                 .contentType("application/json"))
                 .andExpect(status().isCreated()).andReturn();
+
         WallEntry actualWallEntry = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), WallEntry.class);
         assertEquals(expectedWallEntry, actualWallEntry);
 
         verify(wallEntryService).add(headline, description);
+    }
+
+    @Test
+    public void addEntry_HeadlineMissing() throws Exception {
+        WallEntry expectedWallEntry = new WallEntry("", description);
+        String jsonInString = objectMapper.writeValueAsString(expectedWallEntry);
+
+        mockMvc.perform(post(path)
+                .content(jsonInString)
+                .contentType("application/json"))
+                .andExpect(status().isPreconditionFailed()).andReturn();
     }
 
 }

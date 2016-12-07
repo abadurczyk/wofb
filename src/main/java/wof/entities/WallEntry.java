@@ -17,13 +17,18 @@ import javax.persistence.Id;
 @EqualsAndHashCode
 public class WallEntry {
 
-    public WallEntry() {
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     private String description;
     private String headline;
+
+    public WallEntry() {
+    }
+
+    public WallEntry(String headline, String description) {
+        this.headline = headline;
+        this.description = description;
+    }
 }
