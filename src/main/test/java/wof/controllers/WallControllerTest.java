@@ -24,6 +24,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static wof.Application.REST_PATH;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = Application.class)
@@ -37,7 +38,7 @@ public class WallControllerTest {
 
     private final String headline = "headline";
     private final String description = "description";
-    private final String path = "/v1/";
+    private final String path = REST_PATH + "/";
 
     private MockMvc mockMvc;
 
@@ -57,7 +58,7 @@ public class WallControllerTest {
 
         WallEntry expectedWallEntry = new WallEntry(headline, description);
 
-        when(wallEntryService.add(headline, description)).thenReturn(expectedWallEntry);
+        when(wallEntryService.add(expectedWallEntry)).thenReturn(expectedWallEntry);
 
         String jsonString = objectMapper.writeValueAsString(expectedWallEntry);
 
@@ -69,18 +70,49 @@ public class WallControllerTest {
         WallEntry actualWallEntry = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), WallEntry.class);
         assertEquals(expectedWallEntry, actualWallEntry);
 
-        verify(wallEntryService).add(headline, description);
+        verify(wallEntryService).add(expectedWallEntry);
     }
 
     @Test
     public void addEntry_HeadlineMissing() throws Exception {
-        WallEntry expectedWallEntry = new WallEntry("", description);
-        String jsonInString = objectMapper.writeValueAsString(expectedWallEntry);
+        WallEntry wallEntry = new WallEntry("", description);
+        String jsonInString = objectMapper.writeValueAsString(wallEntry);
 
         mockMvc.perform(post(path)
                 .content(jsonInString)
                 .contentType("application/json"))
                 .andExpect(status().isPreconditionFailed()).andReturn();
+
+        wallEntry = new WallEntry(" ", description);
+        jsonInString = objectMapper.writeValueAsString(wallEntry);
+        mockMvc.perform(post(path)
+                .content(jsonInString)
+                .contentType("application/json"))
+                .andExpect(status().isPreconditionFailed()).andReturn();
+
+        wallEntry = new WallEntry("     ", description);
+        jsonInString = objectMapper.writeValueAsString(wallEntry);
+        mockMvc.perform(post(path)
+                .content(jsonInString)
+                .contentType("application/json"))
+                .andExpect(status().isPreconditionFailed()).andReturn();
+
+        wallEntry = new WallEntry(null, description);
+        jsonInString = objectMapper.writeValueAsString(wallEntry);
+        mockMvc.perform(post(path)
+                .content(jsonInString)
+                .contentType("application/json"))
+                .andExpect(status().isPreconditionFailed()).andReturn();
+    }
+
+    @Test
+    public void addCategory() throws Exception {
+
+        String category = "newCategory";
+        mockMvc.perform(post(path + "/category/" + category)
+                .contentType("application/json"))
+                .andExpect(status().isCreated()).andReturn();
+
     }
 
 }

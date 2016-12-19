@@ -29,7 +29,17 @@ public class WallEntryServiceTest {
     public void testAddWallEntry() {
         WallEntry wallEntry = new WallEntry(headline, description);
 
-        WallEntry newWallEntry = wallEntryService.add(headline, description);
+        WallEntry newWallEntry = wallEntryService.add(wallEntry);
+
+        assertEquals(wallEntry, newWallEntry);
+        verify(wallEntryRepository).save(wallEntry);
+    }
+
+    @Test
+    public void testAddWallEntryWithCategory() {
+        WallEntry wallEntry = new WallEntry(headline, description);
+
+        WallEntry newWallEntry = wallEntryService.add(wallEntry);
 
         assertEquals(wallEntry, newWallEntry);
         verify(wallEntryRepository).save(wallEntry);

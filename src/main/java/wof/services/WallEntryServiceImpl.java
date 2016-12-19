@@ -2,10 +2,12 @@ package wof.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wof.entities.Category;
 import wof.entities.WallEntry;
 import wof.exceptions.WallEntryNotFoundException;
 import wof.repositories.WallEntryRepository;
 
+import javax.transaction.Transactional;
 import java.util.Set;
 
 @Service
@@ -20,10 +22,8 @@ public class WallEntryServiceImpl implements WallEntryService {
     }
 
     @Override
-    public WallEntry add(String headLine, String description) {
-        WallEntry wallEntry = new WallEntry();
-        wallEntry.setHeadline(headLine);
-        wallEntry.setDescription(description);
+    public WallEntry add(WallEntry wallEntry) {
+        Set<Category> categories = wallEntry.getCategories();
         wallEntryRepository.save(wallEntry);
         return wallEntry;
     }
@@ -34,6 +34,7 @@ public class WallEntryServiceImpl implements WallEntryService {
     }
 
     @Override
+    @Transactional
     public void update(int id, WallEntry newWallEntry) {
         WallEntry oldEntry = wallEntryRepository.findOne(id);
         if (oldEntry == null) {

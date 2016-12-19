@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import wof.entities.Category;
 import wof.entities.WallEntry;
-import wof.exceptions.HeadlineCannotBeEmptyException;
+import wof.services.CategoryService;
 import wof.services.WallEntryService;
 
 import java.util.Set;
@@ -25,23 +26,31 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.OPTIONS;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static wof.Application.REST_PATH;
+import static wof.utils.WallControllerUtils.checkHeadline;
 
 @Controller
-@RequestMapping("/v1")
+@RequestMapping(value = REST_PATH, consumes = "application/json", produces = "application/json")
 @CrossOrigin(maxAge = 3600,
         methods = {OPTIONS, GET, PUT, POST, DELETE},
         allowedHeaders = {ORIGIN, CONTENT_TYPE, ACCEPT, AUTHORIZATION})
 public class WallController {
 
+    private final WallEntryService wallEntryService;
+    private final CategoryService categoryService;
+
     @Autowired
-    private WallEntryService wallEntryService;
+    public WallController(WallEntryService wallEntryService, CategoryService categoryService) {
+        this.wallEntryService = wallEntryService;
+        this.categoryService = categoryService;
+    }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseBody()
     @ResponseStatus(HttpStatus.CREATED)
-    public WallEntry addEntryWithBody(@RequestBody WallEntry wallEntry) throws Exception {
-        checkForHeadline(wallEntry);
-        return wallEntryService.add(wallEntry.getHeadline(), wallEntry.getDescription());
+    public WallEntry addEntryWithBody(@RequestBody WallEntry wallEntry) {
+        checkHeadline(wallEntry.getHeadline());
+        return wallEntryService.add(wallEntry);
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -53,8 +62,8 @@ public class WallController {
     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable("id") int id, WallEntry wallEntry) throws Exception {
-        checkForHeadline(wallEntry);
+    public void update(@PathVariable("id") int id, WallEntry wallEntry) {
+        checkHeadline(wallEntry.getHeadline());
         wallEntryService.update(id, wallEntry);
     }
 
@@ -65,10 +74,12 @@ public class WallController {
         wallEntryService.delete(id);
     }
 
-    private void checkForHeadline(WallEntry wallEntry) throws Exception {
-        if ("".equalsIgnoreCase(wallEntry.getHeadline())) {
-            throw new HeadlineCannotBeEmptyException();
-        }
+    @RequestMapping(value = "/category/{category}", method = RequestMethod.POST)
+    @ResponseBody()
+    @ResponseStatus(HttpStatus.CREATED)
+    public Category addCategory(@PathVariable("category") String category) {
+        return categoryService.addCategory(category);
     }
+
 
 }
