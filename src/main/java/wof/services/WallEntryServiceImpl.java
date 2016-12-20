@@ -23,7 +23,6 @@ public class WallEntryServiceImpl implements WallEntryService {
 
     @Override
     public WallEntry add(WallEntry wallEntry) {
-        Set<Category> categories = wallEntry.getCategories();
         wallEntryRepository.save(wallEntry);
         return wallEntry;
     }
@@ -55,5 +54,10 @@ public class WallEntryServiceImpl implements WallEntryService {
             return;
         }
         wallEntryRepository.delete(id);
+    }
+
+    @Override
+    public Set<WallEntry> getWallEntriesWithCategory(Category category) {
+        return wallEntryRepository.findByCategories(category);
     }
 }

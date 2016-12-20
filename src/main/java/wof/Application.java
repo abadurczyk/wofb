@@ -7,7 +7,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @SpringBootApplication
 public class Application {
-    public static final String REST_PATH = "/v1/wall";
+
+    public static final String WALL_PATH = "/v1/wall";
+    public static final String CATEGORY_PATH = "/v1/category";
 
 
     public static void main(String[] args) {

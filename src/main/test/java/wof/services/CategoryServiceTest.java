@@ -4,10 +4,13 @@ import org.junit.Before;
 import org.junit.Test;
 import wof.entities.Category;
 import wof.exceptions.CategoryExistsAlreadyException;
+import wof.exceptions.CategoryNotFoundException;
 import wof.repositories.CategoryRepository;
 
 import java.util.Optional;
+import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -67,4 +70,27 @@ public class CategoryServiceTest {
         categoryService.delete(categoryName);
         verify(categoryRepository).delete(category);
     }
+
+    @Test
+    public void checkIfAllCategoriesExist_noCategories() {
+        Set<String> categoryNames = newHashSet();
+        categoryService.getCategories(categoryNames);
+
+    }
+
+    @Test(expected = CategoryNotFoundException.class)
+    public void checkIfAllCategoriesExist_categoryDoesNotExist() {
+        Set<String> categoryNames = newHashSet(categoryName);
+        categoryService.getCategories(categoryNames);
+
+    }
+
+    @Test
+    public void checkIfAllCategoriesExist_allCategoriesExist() {
+        Set<String> categoryNames = newHashSet(categoryName);
+        Set<Category> categories = newHashSet(new Category(categoryName));
+        when(categoryRepository.findByCategoryNameIgnoreCaseIn(categoryNames)).thenReturn(categories);
+        categoryService.getCategories(categoryNames);
+    }
+
 }

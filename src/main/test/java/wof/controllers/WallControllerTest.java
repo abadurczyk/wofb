@@ -24,7 +24,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static wof.Application.REST_PATH;
+import static wof.Application.WALL_PATH;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = Application.class)
@@ -38,7 +38,7 @@ public class WallControllerTest {
 
     private final String headline = "headline";
     private final String description = "description";
-    private final String path = REST_PATH + "/";
+    private final String path = WALL_PATH + "/";
 
     private MockMvc mockMvc;
 

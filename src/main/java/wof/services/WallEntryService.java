@@ -1,5 +1,6 @@
 package wof.services;
 
+import wof.entities.Category;
 import wof.entities.WallEntry;
 import wof.exceptions.WallEntryNotFoundException;
 
@@ -37,4 +38,6 @@ public interface WallEntryService {
      * @param id the id of the entity that should be deleted.
      */
     void delete(int id);
+
+    Set<WallEntry> getWallEntriesWithCategory(Category category);
 }

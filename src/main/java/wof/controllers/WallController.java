@@ -17,6 +17,7 @@ import wof.services.WallEntryService;
 
 import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -26,11 +27,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.OPTIONS;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
-import static wof.Application.REST_PATH;
+import static wof.Application.WALL_PATH;
 import static wof.utils.WallControllerUtils.checkHeadline;
 
 @Controller
-@RequestMapping(value = REST_PATH, consumes = "application/json", produces = "application/json")
+@RequestMapping(value = WALL_PATH, consumes = "application/json", produces = "application/json")
 @CrossOrigin(maxAge = 3600,
         methods = {OPTIONS, GET, PUT, POST, DELETE},
         allowedHeaders = {ORIGIN, CONTENT_TYPE, ACCEPT, AUTHORIZATION})
@@ -50,6 +51,8 @@ public class WallController {
     @ResponseStatus(HttpStatus.CREATED)
     public WallEntry addEntryWithBody(@RequestBody WallEntry wallEntry) {
         checkHeadline(wallEntry.getHeadline());
+        Set<Category> categories = getCategoriesForWallEntries(wallEntry);
+        wallEntry.setCategories(categories);
         return wallEntryService.add(wallEntry);
     }
 
@@ -74,12 +77,12 @@ public class WallController {
         wallEntryService.delete(id);
     }
 
-    @RequestMapping(value = "/category/{category}", method = RequestMethod.POST)
-    @ResponseBody()
-    @ResponseStatus(HttpStatus.CREATED)
-    public Category addCategory(@PathVariable("category") String category) {
-        return categoryService.addCategory(category);
+
+    private Set<Category> getCategoriesForWallEntries(@RequestBody WallEntry wallEntry) {
+        Set<String> categoryNames = newHashSet();
+        for (Category c : wallEntry.getCategories()) {
+            categoryNames.add(c.getCategoryName());
+        }
+        return categoryService.getCategories(categoryNames);
     }
-
-
 }
