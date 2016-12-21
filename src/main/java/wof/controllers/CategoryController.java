@@ -52,9 +52,15 @@ public class CategoryController {
         return categoryService.addCategory(category);
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/{category}/newname/{newCategoryName}", method = RequestMethod.GET)
     @ResponseBody()
-    public Set<Category> getCategories() {
+    public Set<Category> getCategories(@PathVariable("category") String oldCategoryName, @PathVariable("newCategoryName") String newCategoryName) {
+        return categoryService.getAllCategories();
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
+    @ResponseBody()
+    public Set<Category> changeCategory() {
         return categoryService.getAllCategories();
     }
 

@@ -36,16 +36,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void delete(String categoryName) {
-        Optional<Category> categoryOptional = getCategory(categoryName);
-        if (!categoryOptional.isPresent()) {
-            return;
-        }
-        Category category = categoryOptional.get();
-        categoryRepository.delete(category);
-    }
-
-    @Override
     public Set<Category> getCategories(Set<String> categoryNames) {
         Set<Category> categories = categoryRepository.findByCategoryNameIgnoreCaseIn(categoryNames);
         if (categoryNames.size() != categories.size()) {
@@ -62,5 +52,26 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Category category) {
         categoryRepository.delete(category);
+    }
+
+    @Override
+    public void changeCategoryName(String oldCategoryName, String newCategoryName) {
+        if (oldCategoryName.equalsIgnoreCase(newCategoryName)) {
+            return;
+        }
+        // check if the new name exists in the repository
+        Optional<Category> oldCategory = categoryRepository.findByCategoryNameIgnoreCase(newCategoryName);
+        if (oldCategory.isPresent()) {
+            throw new CategoryExistsAlreadyException();
+        }
+
+        Optional<Category> categoryOptional = categoryRepository.findByCategoryNameIgnoreCase(oldCategoryName);
+        if (categoryOptional.isPresent()) {
+            Category category = categoryOptional.get();
+            category.setCategoryName(newCategoryName);
+            categoryRepository.save(category);
+        } else {
+            throw new CategoryNotFoundException();
+        }
     }
 }

@@ -12,8 +12,9 @@ import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,20 +59,6 @@ public class CategoryServiceTest {
     }
 
     @Test
-    public void deleteCategory_notDeletedIfNotFound() {
-        when(categoryRepository.findByCategoryNameIgnoreCase(categoryName)).thenReturn(Optional.empty());
-        categoryService.delete(categoryName);
-        verify(categoryRepository, times(0)).delete(category);
-    }
-
-    @Test
-    public void deleteCategory() {
-        when(categoryRepository.findByCategoryNameIgnoreCase(categoryName)).thenReturn(Optional.of(category));
-        categoryService.delete(categoryName);
-        verify(categoryRepository).delete(category);
-    }
-
-    @Test
     public void checkIfAllCategoriesExist_noCategories() {
         Set<String> categoryNames = newHashSet();
         categoryService.getCategories(categoryNames);
@@ -93,4 +80,37 @@ public class CategoryServiceTest {
         categoryService.getCategories(categoryNames);
     }
 
+    @Test
+    public void changeCategoryName_noChanges() {
+
+        categoryService.changeCategoryName(categoryName, categoryName);
+    }
+
+    @Test(expected = CategoryNotFoundException.class)
+    public void changeCategoryName_newNameExists() {
+        String newCategoryName = "newCategoryName";
+        when(categoryRepository.findByCategoryNameIgnoreCase(newCategoryName)).thenReturn(Optional.empty());
+        when(categoryRepository.findByCategoryNameIgnoreCase(categoryName)).thenReturn(Optional.empty());
+        categoryService.changeCategoryName(categoryName, newCategoryName);
+        verify(categoryRepository, never()).save(any(Category.class));
+    }
+
+    @Test
+    public void changeCategoryName_NameChanged() {
+        String newCategoryName = "newCategoryName";
+        Category newCategory = new Category(newCategoryName);
+        when(categoryRepository.findByCategoryNameIgnoreCase(newCategoryName)).thenReturn(Optional.empty());
+        when(categoryRepository.findByCategoryNameIgnoreCase(categoryName)).thenReturn(Optional.of(category));
+        categoryService.changeCategoryName(categoryName, newCategoryName);
+        verify(categoryRepository).save(newCategory);
+    }
+
+    @Test(expected = CategoryExistsAlreadyException.class)
+    public void changeCategoryName_NewNameExists() {
+        String newCategoryName = "newCategoryName";
+        Category newCategory = new Category(newCategoryName);
+        when(categoryRepository.findByCategoryNameIgnoreCase(newCategoryName)).thenReturn(Optional.of(category));
+        categoryService.changeCategoryName(categoryName, newCategoryName);
+        verify(categoryRepository, never()).save(newCategory);
+    }
 }
