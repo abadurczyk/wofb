@@ -41,14 +41,16 @@ public interface CategoryService {
 
     /**
      * Deletes the category.
+     *
      * @param category The to delete category
      */
     void deleteCategory(Category category);
 
     /**
      * Changes the category name.
-     * @param categoryName
-     * @param newCategoryName
+     *
+     * @param oldCategoryName the old name
+     * @param newCategoryName the new category name
      */
-    void changeCategoryName(String categoryName, String newCategoryName);
+    void changeCategoryName(String oldCategoryName, String newCategoryName);
 }

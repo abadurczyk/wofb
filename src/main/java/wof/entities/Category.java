@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,20 +19,17 @@ import javax.persistence.Id;
 @Getter
 @Setter
 public class Category {
+    public static final int MAX_CATEGORY_NAME_LENGTH = 50;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "CATEGORY_ID")
     private int categoryId;
 
     @Column(name = "CATEGORY_NAME", unique = true)
-
+    @Length(max = MAX_CATEGORY_NAME_LENGTH)
     private String categoryName;
 
-    //@ManyToMany(mappedBy = "categories", cascade = CascadeType.REMOVE)
- /*   @Setter
-    @Getter
-    private Set<WallEntry> wallEntries = new HashSet<>(0);
-*/
     public Category(String categoryName) {
         this.categoryName = categoryName;
     }

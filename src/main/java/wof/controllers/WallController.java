@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import wof.entities.Category;
 import wof.entities.WallEntry;
+import wof.exceptions.CategoryNotFoundException;
 import wof.services.CategoryService;
 import wof.services.WallEntryService;
 
@@ -51,6 +52,9 @@ public class WallController {
     @ResponseStatus(HttpStatus.CREATED)
     public WallEntry addEntryWithBody(@RequestBody WallEntry wallEntry) {
         checkHeadline(wallEntry.getHeadline());
+        if (wallEntry.getCategories() == null) {
+            throw new CategoryNotFoundException();
+        }
         Set<Category> categories = getCategoriesForWallEntries(wallEntry);
         wallEntry.setCategories(categories);
         return wallEntryService.add(wallEntry);

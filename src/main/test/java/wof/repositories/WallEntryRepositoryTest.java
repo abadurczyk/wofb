@@ -1,4 +1,4 @@
-package wof;
+package wof.repositories;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -6,21 +6,21 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import wof.Application;
 import wof.entities.Category;
 import wof.entities.WallEntry;
-import wof.repositories.CategoryRepository;
-import wof.repositories.WallEntryRepository;
 
 import javax.transaction.Transactional;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = Application.class)
-public class TestRepo {
+public class WallEntryRepositoryTest {
 
     @Autowired
     private WallEntryRepository wallEntryRepository;
@@ -35,12 +35,10 @@ public class TestRepo {
 
     @Test
     @Transactional
-    public void testAdd() {
+    public void addMultipleWallEntriesWithSameCategory() {
 
         Set<Category> categorySet = newHashSet();
-        Set<Category> categorySet1 = newHashSet();
         categorySet.add(new Category("asd"));
-        categorySet1.add(new Category("asd"));
         WallEntry wallEntry = new WallEntry("asd", "asd");
         WallEntry wallEntry2 = new WallEntry("asd2", "asd2");
         wallEntry.setCategories(categorySet);
@@ -50,8 +48,8 @@ public class TestRepo {
         wallEntry2.setCategories(newHashSet(category));
         wallEntryRepository.save(wallEntry2);
         assertEquals(wallEntryRepository.findAll().size(), 2);
-        for (WallEntry wallEntry1 : wallEntryRepository.findAll()) {
-            System.out.println(wallEntry1.getCategories());
-        }
+        Set<WallEntry> wallEntries = wallEntryRepository.findAll();
+        assertThat(wallEntries.contains(wallEntry));
+        assertThat(wallEntries.contains(wallEntry2));
     }
 }
